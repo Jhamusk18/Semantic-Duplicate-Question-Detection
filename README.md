@@ -74,7 +74,7 @@ The selected model's test confusion counts were 36,252 true negatives, 14,749 fa
 ## Limitations
 
 - Component disjointness covers shared IDs and matching normalized strings. Differently worded versions of a question can still appear across splits, and the labels may reflect ambiguity or annotation noise.
-- The LSA embeddings capture patterns from the training vocabulary. Pretrained MiniLM is available as a separate run with `--embeddings minilm` after installing [the optional dependencies](v2/README.md). The pretrained run could not be evaluated here because this cloud environment denied access to Hugging Face.
+- The LSA embeddings capture patterns from the training vocabulary. Pretrained MiniLM is available as a separate run with `--embeddings minilm` after installing [the optional dependencies](v2/README.md). A matched 4,000-pair pilot used a local copy of MiniLM. See the [pilot comparison](results/README.md#minilm-pilot).
 - The public Kaggle test file has no labels. This report uses a held-out split from the labeled training file. Performance may change in another domain or under different duplicate rates.
 
 ## Attribution

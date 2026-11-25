@@ -19,6 +19,32 @@ python -m pip install -r requirements-minilm.txt
 python -m v2.quora_v2_pipeline --embeddings minilm --output artifacts/minilm
 ```
 
+### Use a local copy of MiniLM
+
+After installing the same Python dependencies, pass a local model directory with
+`--minilm-model-dir`. The directory needs its tokenizer, model configuration, and
+weights. The app also needs access to this directory if the selected model uses MiniLM.
+
+The Vercel Labs npm package below contains MiniLM weights stored in FP16. The pipeline
+converts them to FP32 for CPU inference and uses mean pooling over up to 256 tokens.
+The commands verify the archive hash and extract the model files without executing npm
+package code.
+
+```bash
+mkdir -p artifacts/minilm-weights
+curl -fsSL https://registry.npmjs.org/@lat.md/embed-minilm-fp16/-/embed-minilm-fp16-0.1.1.tgz \
+    -o artifacts/minilm-weights/model.tgz
+printf '%s  %s\n' \
+    3a72901e5442be668701b468c764f83a27ca6af8a04b4ea85635d522e462f127 \
+    artifacts/minilm-weights/model.tgz | sha256sum -c -
+tar -xzf artifacts/minilm-weights/model.tgz -C artifacts/minilm-weights package/model
+ln -s model.fp16.safetensors artifacts/minilm-weights/package/model/model.safetensors
+HF_HUB_OFFLINE=1 python -m v2.quora_v2_pipeline --embeddings minilm \
+    --minilm-model-dir artifacts/minilm-weights/package/model --output artifacts/minilm
+```
+
+[Vercel Labs model package](https://www.npmjs.com/package/@lat.md/embed-minilm-fp16)
+
 ## Run outputs
 
 | File | Contents |

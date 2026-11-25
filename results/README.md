@@ -8,3 +8,9 @@ These aggregate reports come from runs on the full usable Quora Question Pairs t
 - [Run metadata](run_summary.json)
 
 The training command also writes a local `error_analysis.csv` with source row numbers, raw questions, labels, and probabilities. The CSV and the fitted model stay in the output directory outside version control.
+
+## MiniLM pilot
+
+This separate comparison used 4,000 usable pairs from the same labeled file, with seed 42 and the same group-based splitting code. Both pilot runs used the same 2,800 training, 400 validation, and 800 test pairs, with up to 50 trees per model. The pretrained weights came from `@lat.md/embed-minilm-fp16@0.1.1` and were converted to FP32 for inference.
+
+On the 800 test pairs, adding MiniLM to handcrafted features and TF-IDF yielded 82.50% accuracy, 0.7819 F1, and 0.9014 ROC-AUC. Adding LSA to the same feature set yielded 73.25% accuracy, 0.6899 F1, and 0.8207 ROC-AUC under the same pilot conditions. The table on the main project page reports a separate full-dataset run. [Pilot metrics](minilm_pilot.csv) · [MiniLM setup](../v2/README.md#use-a-local-copy-of-minilm)

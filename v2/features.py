@@ -54,7 +54,7 @@ def handcrafted_row(a, b, advanced):
     ]
 
 
-def fit_context(train, needed, embedding, seed):
+def fit_context(train, needed, embedding, seed, minilm_model_dir=None):
     corpus = sorted(set(train.clean1) | set(train.clean2))
     context = {}
     if "bow" in needed:
@@ -76,8 +76,10 @@ def fit_context(train, needed, embedding, seed):
             context["embedding"] = ("lsa", word, TruncatedSVD(
                 n_components=components, random_state=seed).fit(matrix))
         else:
-            context["embedding"] = ("minilm", MINILM_MODEL, MINILM_REVISION)
-            minilm_encoder(MINILM_MODEL, MINILM_REVISION)
+            source = str(minilm_model_dir) if minilm_model_dir else MINILM_MODEL
+            revision = None if minilm_model_dir else MINILM_REVISION
+            context["embedding"] = ("minilm", source, revision)
+            minilm_encoder(source, revision)
     return context
 
 
@@ -91,7 +93,12 @@ def minilm_encoder(name, revision):
         from sentence_transformers import SentenceTransformer
     except ImportError as exc:
         raise RuntimeError("Install requirements-minilm.txt to use MiniLM.") from exc
-    return SentenceTransformer(name, revision=revision, device="cpu", trust_remote_code=False)
+    encoder = SentenceTransformer(
+        name, revision=revision, device="cpu", trust_remote_code=False,
+        local_files_only=revision is None,
+    )
+    encoder.max_seq_length = 256
+    return encoder.float()
 
 
 def embedding_similarity(left, right, spec):
@@ -103,7 +110,7 @@ def embedding_similarity(left, right, spec):
         encoder = minilm_encoder(first, second)
         codes, unique = pd.factorize(np.asarray(left + right, dtype=object))
         vectors = encoder.encode(unique.tolist(), batch_size=64, normalize_embeddings=True,
-                                 show_progress_bar=False)
+                                 show_progress_bar=len(unique) >= 10_000)
         a, b = np.split(vectors[codes], 2)
     return np.einsum("ij,ij->i", a, b).clip(-1, 1)
 

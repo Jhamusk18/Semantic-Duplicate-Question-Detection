@@ -43,9 +43,15 @@ def parse_args(profile):
         parser.add_argument("--embeddings", choices=["lsa", "minilm"], default="lsa",
                             nargs="?", const="minilm")
         parser.add_argument("--no-embeddings", action="store_const", const=None, dest="embeddings")
+        parser.add_argument("--minilm-model-dir", type=Path,
+                            help="Read MiniLM weights and tokenizer from a local directory.")
     else:
-        parser.set_defaults(embeddings=None)
+        parser.set_defaults(embeddings=None, minilm_model_dir=None)
     options = parser.parse_args()
+    if options.minilm_model_dir is not None:
+        if options.embeddings != "minilm" or not options.minilm_model_dir.is_dir():
+            parser.error("--minilm-model-dir needs --embeddings minilm and an existing directory")
+        options.minilm_model_dir = options.minilm_model_dir.resolve()
     for name in ("sample", "threads", "max_trees"):
         value = getattr(options, name)
         if value is not None and value < 1:
@@ -148,6 +154,7 @@ def run(options, profile, output):
         "excluded_empty_text": excluded, "used_rows": len(frame), "sample": options.sample,
         "seed": options.seed, "max_trees": options.max_trees, "threads": options.threads,
         "profile": profile, "sentence_embeddings": options.embeddings,
+        "minilm_local_model": options.minilm_model_dir is not None,
         "largest_component_rows": int(frame.group.value_counts().max()),
         "splits": {
             name: {"rows": len(split), "groups": split.group.nunique(),
@@ -166,7 +173,8 @@ def run(options, profile, output):
             "hand", "tfidf", "embedding")
     needed = set().union(*experiments.values())
     print("Fitting feature transformers on training questions.", flush=True)
-    context = fit_context(splits["train"], needed, options.embeddings, options.seed)
+    context = fit_context(splits["train"], needed, options.embeddings, options.seed,
+                          minilm_model_dir=options.minilm_model_dir)
 
     blocks = {}
     for name in ("train", "validation"):
