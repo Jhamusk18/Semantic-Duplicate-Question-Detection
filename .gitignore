@@ -26,3 +26,5 @@ test.csv
 sample_submission.csv
 *.key
 .netrc
+*.keras
+*.weights.h5

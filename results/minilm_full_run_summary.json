@@ -1,0 +1,34 @@
+{
+  "source": "train.csv",
+  "input_sha256": "5f28dbe0bb01b39a793f36567d18fe7cf34d20bbca69ff85b131d7c2186f9914",
+  "input_rows": 404290,
+  "excluded_empty_text": 23,
+  "used_rows": 404267,
+  "sample": null,
+  "seed": 42,
+  "max_trees": 1500,
+  "threads": 4,
+  "profile": "v2",
+  "sentence_embeddings": "minilm",
+  "minilm_local_model": true,
+  "largest_component_rows": 17631,
+  "splits": {
+    "train": {
+      "rows": 282987,
+      "groups": 94744,
+      "duplicates": 104484
+    },
+    "validation": {
+      "rows": 40426,
+      "groups": 39236,
+      "duplicates": 14926
+    },
+    "test": {
+      "rows": 80854,
+      "groups": 66258,
+      "duplicates": 29853
+    }
+  },
+  "selected_by_validation_log_loss": "Handcrafted + TF-IDF + MINILM",
+  "swap_test_rows_per_model": 256
+}

@@ -1,9 +1,10 @@
 # Semantic Duplicate Question Detection
 
-Predict whether two questions ask for the same thing. The project uses labeled [Quora Question Pairs](https://www.kaggle.com/competitions/quora-question-pairs/data) and serves the validation-selected XGBoost model in Streamlit.
+Predict whether two questions ask for the same thing. The project uses labeled [Quora Question Pairs](https://www.kaggle.com/competitions/quora-question-pairs/data) and serves validation-selected XGBoost and Siamese LSTM models in Streamlit.
 
 - [V1](v1/README.md) reproduces the CampusX progression with symmetric bag-of-words, basic, and handcrafted feature sets. Its notebooks use the maintained training and evaluation workflow.
 - [V2](v2/README.md) adds word and character TF-IDF and a sentence-embedding ablation. Training and the app share feature construction and the decision rule.
+- [V3](v3/README.md) trains a shared TensorFlow/Keras LSTM with cosine triplet loss and compares random negatives with semi-hard mining.
 - [Results](results/) contains measured metrics, the run configuration, confusion matrices, and evaluation curves. Training creates the model and the row-level error report locally.
 
 ## Run locally
@@ -25,6 +26,8 @@ python -m streamlit run v2/app_v2.py
 ```
 
 For the standalone V1 workflow, run `python -m v1.baseline` followed by `python -m streamlit run v1/app.py`. Use `--sample 12000 --max-trees 50 --output artifacts/smoke` for a quick V2 check. Each training invocation needs a new or empty output directory. Set `QUORA_MODEL_PATH` to a trusted local `model.joblib` to use a different run in the app.
+
+For the Siamese LSTM, install the optional V3 dependencies with `python -m pip install -r requirements-v3.txt`, run `python -m v3.train`, then launch `python -m streamlit run v3/app.py`. [V3 architecture and reproducible commands](v3/README.md)
 
 ## Architecture and evaluation
 
@@ -70,6 +73,26 @@ Validation log loss selected **Handcrafted + TF-IDF + LSA** (0.3929). Its valida
 The selected model's test confusion counts were 36,252 true negatives, 14,749 false positives, 3,338 false negatives, and 26,515 true positives. Its 200 highest-confidence mistakes contained 20 false positives and 180 false negatives. Each fitted model returned exactly equal feature values and probabilities for 256 reversed test pairs.
 
 [Ablation CSV](results/ablation_results.csv) · [Confusion matrices](results/confusion_matrices.png) · [Evaluation curves](results/evaluation_curves.png) · [Run metadata](results/run_summary.json)
+
+### V3 and the full MiniLM comparison
+
+All rows below use the same 80,854 grouped test pairs. The V3 CPU experiment used the full
+282,987-pair training partition, up to 32 tokens per question, 64-dimensional embeddings
+and LSTM state, and four epochs for each sampling strategy.
+
+| Model | Accuracy | F1 | ROC-AUC |
+|---|---:|---:|---:|
+| V1 bag of words | 0.6690 | 0.6552 | 0.7667 |
+| V2 handcrafted + TF-IDF + LSA | 0.7763 | 0.7457 | 0.8769 |
+| V2 handcrafted + TF-IDF + MiniLM | 0.8512 | 0.8157 | 0.9300 |
+| V3 Siamese LSTM · random negatives | 0.7199 | 0.6605 | 0.7952 |
+| V3 Siamese LSTM · semi-hard negatives | 0.7175 | 0.6644 | 0.7969 |
+| V3 Siamese LSTM · hard negatives | 0.7248 | 0.6620 | 0.7974 |
+
+Hard mining had the highest V3 validation F1 (0.6849) and V3 test accuracy (72.48%).
+Semi-hard mining had the highest V3 test F1 (0.6644).
+The full MiniLM run had the highest measured F1 and ROC-AUC. The smaller MiniLM pilot is
+reported separately. [Full comparison](results/v3/comparison.csv) · [V3 results and plots](results/v3/) · [MiniLM pilot](results/README.md#minilm-pilot)
 
 ## Limitations
 

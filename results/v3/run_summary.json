@@ -1,0 +1,71 @@
+{
+  "input_rows": 404290,
+  "input_sha256": "5f28dbe0bb01b39a793f36567d18fe7cf34d20bbca69ff85b131d7c2186f9914",
+  "usable_rows": 404267,
+  "excluded_empty_text": 23,
+  "seed": 42,
+  "splits": {
+    "train": {
+      "rows": 282987,
+      "groups": 94744,
+      "duplicates": 104484,
+      "row_ids_sha256": "86a2df2398468ddf6e39e8b2d052cd775e70719774539fba6499da2081bd269e"
+    },
+    "validation": {
+      "rows": 40426,
+      "groups": 39236,
+      "duplicates": 14926,
+      "row_ids_sha256": "5aee9607dafd25e2916fd5889a115ffebce1f921c0e646cc7f1c9f8b94c0e9b4"
+    },
+    "test": {
+      "rows": 80854,
+      "groups": 66258,
+      "duplicates": 29853,
+      "row_ids_sha256": "02904f3efbfc5186899c6fe9320f2dc7679d732bf0a2565191de53a8b3dce9ee"
+    }
+  },
+  "config": {
+    "vocabulary_size": 30000,
+    "sequence_length": 32,
+    "embedding_dim": 64,
+    "lstm_units": 64,
+    "projection_dim": 64,
+    "dropout": 0.2,
+    "batch_size": 128,
+    "learning_rate": 0.001,
+    "margin": 0.2,
+    "seed": 42
+  },
+  "strategies": [
+    "random",
+    "semi-hard"
+  ],
+  "train_limit": null,
+  "eval_limit": null,
+  "used_rows_by_split": {
+    "train": 282987,
+    "validation": 40426,
+    "test": 80854
+  },
+  "triplet_pool": {
+    "training_questions": 315504,
+    "eligible_anchors": 22222,
+    "skipped_anchors": 293282,
+    "anchors_with_positive_but_no_negative": 55719,
+    "contradictory_relationships": 26,
+    "negatives_vetoed_by_identity_or_positive_path": 173,
+    "positive_relationships": 103264,
+    "negative_relationships": 178202
+  },
+  "threads": 4,
+  "warmup": 1,
+  "refresh": 1,
+  "patience": 3,
+  "lr_patience": 2,
+  "tensorflow": "2.20.0",
+  "keras": "3.12.0",
+  "devices": [
+    "CPU"
+  ],
+  "requested_epochs": 4
+}
